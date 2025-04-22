@@ -84,6 +84,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [ 
     "http://localhost:3000",  # Next.js development server 
     "https://www.1worldsourcing.com",# Production domain 
+    "https://frontend-psi-blush-72.vercel.app",
 ] 
 CORS_ALLOW_CREDENTIALS = True
 
