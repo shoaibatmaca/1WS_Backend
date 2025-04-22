@@ -173,7 +173,7 @@ class TempQuoteView(APIView):
 
 from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
+
 class FinalizeQuoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

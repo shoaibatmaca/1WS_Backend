@@ -89,16 +89,32 @@ MIDDLEWARE = [
 # CORS_ALLOW_CREDENTIALS = True
 
 
-CORS_ALLOW_ALL_ORIGINS = True
-CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    "https://192.168.1.12:3000",
-    "http://localhost:3000",  # Next.js development server 
-    "https://www.1worldsourcing.com",# Production domain 
-    "https://frontend-psi-blush-72.vercel.app",
+# CORS_ALLOW_ALL_ORIGINS = True
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://127.0.0.1:8000",
+#     "https://192.168.1.12:3000",
+#     "http://localhost:3000",  # Next.js development server 
+#     "https://www.1worldsourcing.com",# Production domain 
+#     "https://frontend-psi-blush-72.vercel.app",
+#     'http://1worldsourcing.com',
 
+# ]
+
+
+
+
+CORS_ALLOWED_ORIGINS = [
+    "https://frontend-psi-blush-72.vercel.app",
+    "https://www.1worldsourcing.com",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://frontend-psi-blush-72.vercel.app",
+    "https://www.1worldsourcing.com",
+    "https://1wsbackend-production.up.railway.app",  # also add your backend if needed
+]
 
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
