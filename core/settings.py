@@ -81,12 +81,25 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 # CORS settings 
-CORS_ALLOWED_ORIGINS = [ 
+# CORS_ALLOWED_ORIGINS = [ 
+#     "http://localhost:3000",  # Next.js development server 
+#     "https://www.1worldsourcing.com",# Production domain 
+#     "https://frontend-psi-blush-72.vercel.app",
+# ] 
+# CORS_ALLOW_CREDENTIALS = True
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "https://192.168.1.12:3000",
     "http://localhost:3000",  # Next.js development server 
     "https://www.1worldsourcing.com",# Production domain 
     "https://frontend-psi-blush-72.vercel.app",
-] 
-CORS_ALLOW_CREDENTIALS = True
+
+]
+
+
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
