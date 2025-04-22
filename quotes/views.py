@@ -157,7 +157,9 @@ from rest_framework.response import Response
 from messaging.models import Conversation, Message
 
 User = get_user_model()
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 class TempQuoteView(APIView):
     """
     Save quote temporarily in session if user is not authenticated
@@ -169,7 +171,9 @@ class TempQuoteView(APIView):
         request.session['temp_quote_data'] = quote_data
         return Response({"message": "Quote saved temporarily."}, status=200)
 
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 class FinalizeQuoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
