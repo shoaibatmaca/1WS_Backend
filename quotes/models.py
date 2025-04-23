@@ -57,6 +57,7 @@ class QuoteAttachment(models.Model):
 related_name='attachments') 
     file = models.FileField(upload_to='quote_attachments/') 
     file_name = models.CharField(max_length=255) 
+    file_size = models.PositiveIntegerField(null=True, blank=True)  # Size in bytes 
     uploaded_at = models.DateTimeField(auto_now_add=True) 
      
     def __str__(self): 
