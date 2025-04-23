@@ -49,6 +49,7 @@ class TempQuoteView(APIView):
 
 
 
+
 class FinalizeQuoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -107,23 +108,6 @@ class FinalizeQuoteView(APIView):
 
         return Response(quote_serializer.errors, status=400)
 
-# this is for the temporary quote view with images data
-
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Quote, QuoteAttachment, ShippingDetails, QuoteTimeline
-from .serializers import QuoteSerializer
-from messaging.models import Conversation, ConversationParticipant
-from django.contrib.auth import get_user_model
-
-from django.views.decorators.csrf import csrf_exempt
-
-User = get_user_model()
 
 
 
