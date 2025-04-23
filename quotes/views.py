@@ -34,78 +34,79 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class TempQuoteView(APIView):
-#     """
-#     Save quote temporarily in session if user is not authenticated
-#     """
-#     permission_classes = [AllowAny] 
+@method_decorator(csrf_exempt, name='dispatch')
+class TempQuoteView(APIView):
+    """
+    Save quote temporarily in session if user is not authenticated
+    """
+    permission_classes = [AllowAny] 
 
-#     def post(self, request):
-#         quote_data = request.data
-#         request.session['temp_quote_data'] = quote_data
-#         return Response({"message": "Quote saved temporarily."}, status=200)
-
-
+    def post(self, request):
+        quote_data = request.data
+        request.session['temp_quote_data'] = quote_data
+        return Response({"message": "Quote saved temporarily."}, status=200)
 
 
-# class FinalizeQuoteView(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
 
-#     def post(self, request):
-#         quote_data = request.session.get('temp_quote_data')
 
-#         if not quote_data:
-#             return Response({"message": "No quote data found in session."}, status=400)
+class FinalizeQuoteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-#         quote_data['user'] = request.user.id
-#         quote_data['product_name'] = quote_data.pop('productName', '')
-#         quote_data['product_type'] = quote_data.pop('productType', '')
+    def post(self, request):
+        quote_data = request.session.get('temp_quote_data')
 
-#         shipping_fields = {
-#             'port_name': quote_data.pop('portName', ''),
-#             'destination_country': quote_data.pop('destinationCountry', ''),
-#             'shipment_terms': quote_data.pop('shipmentTerms', ''),
-#             'payment_terms': quote_data.pop('paymentTerms', ''),
-#             'shipment_method': quote_data.pop('shipmentMethod', ''),
-#             'shipment_destination': quote_data.pop('shipmentDestination', ''),
-#             'door_address': quote_data.pop('doorAddress', ''),
-#             'shipment_details': quote_data.pop('shipmentDetails', ''),
-#         }
+        if not quote_data:
+            return Response({"message": "No quote data found in session."}, status=400)
 
-#         quote_serializer = QuoteSerializer(data=quote_data)
-#         if quote_serializer.is_valid():
-#             quote = quote_serializer.save()
+        quote_data['user'] = request.user.id
+        quote_data['product_name'] = quote_data.pop('productName', '')
+        quote_data['product_type'] = quote_data.pop('productType', '')
 
-#             # ✅ Save shipping details
-#             if any(value for value in shipping_fields.values()):
-#                 ShippingDetails.objects.create(quote=quote, **shipping_fields)
+        shipping_fields = {
+            'port_name': quote_data.pop('portName', ''),
+            'destination_country': quote_data.pop('destinationCountry', ''),
+            'shipment_terms': quote_data.pop('shipmentTerms', ''),
+            'payment_terms': quote_data.pop('paymentTerms', ''),
+            'shipment_method': quote_data.pop('shipmentMethod', ''),
+            'shipment_destination': quote_data.pop('shipmentDestination', ''),
+            'door_address': quote_data.pop('doorAddress', ''),
+            'shipment_details': quote_data.pop('shipmentDetails', ''),
+        }
 
-#             # ✅ Create conversation + add requesting user as "Customer"
-#             conversation = Conversation.objects.create(
-#                 type='quote',
-#                 quote=quote,
-#                 name=f"Quote Chat: {quote.quote_number}"
-#             )
-#             ConversationParticipant.objects.create(
-#                 conversation=conversation,
-#                 user=request.user,
-#                 role="Customer"
-#             )
+        quote_serializer = QuoteSerializer(data=quote_data)
+        if quote_serializer.is_valid():
+            quote = quote_serializer.save()
 
-#             # ✅ Optionally auto-add sourcing specialist/admin
-#             admin_user = User.objects.filter(is_staff=True).first()
-#             if admin_user and admin_user != request.user:
-#                 ConversationParticipant.objects.get_or_create(
-#                     conversation=conversation,
-#                     user=admin_user,
-#                     role="Sourcing Specialist"
-#                 )
+            #  Save shipping details
+            if any(value for value in shipping_fields.values()):
+                ShippingDetails.objects.create(quote=quote, **shipping_fields)
 
-#             del request.session['temp_quote_data']
-#             return Response(QuoteSerializer(quote).data, status=201)
+            # Create conversation + add requesting user as "Customer"
+            conversation = Conversation.objects.create(
+                type='quote',
+                quote=quote,
+                name=f"Quote Chat: {quote.quote_number}"
+            )
+            ConversationParticipant.objects.create(
+                conversation=conversation,
+                user=request.user,
+                role="Customer"
+            )
 
-#         return Response(quote_serializer.errors, status=400)
+            # Optionally auto-add sourcing specialist/admin
+            admin_user = User.objects.filter(is_staff=True).first()
+            if admin_user and admin_user != request.user:
+                ConversationParticipant.objects.get_or_create(
+                    conversation=conversation,
+                    user=admin_user,
+                    role="Sourcing Specialist"
+                )
+
+            del request.session['temp_quote_data']
+            return Response(QuoteSerializer(quote).data, status=201)
+
+        return Response(quote_serializer.errors, status=400)
+
 # this is for the temporary quote view with images data
 
 from django.core.files.base import ContentFile
@@ -127,129 +128,130 @@ User = get_user_model()
 
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class TempQuoteView(APIView):
-    permission_classes = [AllowAny]
-    parser_classes = [MultiPartParser, FormParser]
+# this is with the images 
+# @method_decorator(csrf_exempt, name='dispatch')
+# class TempQuoteView(APIView):
+#     permission_classes = [AllowAny]
+#     parser_classes = [MultiPartParser, FormParser]
 
-    def post(self, request):
-        temp_data = request.data.dict()
-        files = request.FILES.getlist('attachments')
+#     def post(self, request):
+#         temp_data = request.data.dict()
+#         files = request.FILES.getlist('attachments')
 
-        uploaded_files = []
+#         uploaded_files = []
 
-        for file in files:
-            saved_path = default_storage.save(f"temp_uploads/{file.name}", file)
-            uploaded_files.append({
-                "file_path": saved_path,
-                "file_name": file.name,
-            })
+#         for file in files:
+#             saved_path = default_storage.save(f"temp_uploads/{file.name}", file)
+#             uploaded_files.append({
+#                 "file_path": saved_path,
+#                 "file_name": file.name,
+#             })
 
-        # Save quote data + files in session
-        request.session['temp_quote_data'] = {
-            # Product Info
-    "product_name": temp_data.get("product_name", ""),
-    "product_type": temp_data.get("product_type", ""),
-    "quantity": temp_data.get("quantity", ""),
-    "region": temp_data.get("region", ""),
-    "color": temp_data.get("color", ""),
-    "target_price": temp_data.get("target_price", ""),
-    "quality": temp_data.get("quality", ""),
-    "specifications": temp_data.get("specifications", ""),
+#         # Save quote data + files in session
+#         request.session['temp_quote_data'] = {
+#             # Product Info
+#     "product_name": temp_data.get("product_name", ""),
+#     "product_type": temp_data.get("product_type", ""),
+#     "quantity": temp_data.get("quantity", ""),
+#     "region": temp_data.get("region", ""),
+#     "color": temp_data.get("color", ""),
+#     "target_price": temp_data.get("target_price", ""),
+#     "quality": temp_data.get("quality", ""),
+#     "specifications": temp_data.get("specifications", ""),
 
-    # Shipping Info (NEW)
-    "portName": temp_data.get("portName", ""),
-    "destinationCountry": temp_data.get("destinationCountry", ""),
-    "shipmentTerms": temp_data.get("shipmentTerms", ""),
-    "paymentTerms": temp_data.get("paymentTerms", ""),
-    "shipmentMethod": temp_data.get("shipmentMethod", ""),
-    "shipmentDestination": temp_data.get("shipmentDestination", ""),
-    "doorAddress": temp_data.get("doorAddress", ""),
-    "shipmentDetails": temp_data.get("shipmentDetails", ""),
+#     # Shipping Info (NEW)
+#     "portName": temp_data.get("portName", ""),
+#     "destinationCountry": temp_data.get("destinationCountry", ""),
+#     "shipmentTerms": temp_data.get("shipmentTerms", ""),
+#     "paymentTerms": temp_data.get("paymentTerms", ""),
+#     "shipmentMethod": temp_data.get("shipmentMethod", ""),
+#     "shipmentDestination": temp_data.get("shipmentDestination", ""),
+#     "doorAddress": temp_data.get("doorAddress", ""),
+#     "shipmentDetails": temp_data.get("shipmentDetails", ""),
 
-    # Attachments
-    "attachments": uploaded_files
-        }
+#     # Attachments
+#     "attachments": uploaded_files
+#         }
 
-        return Response({"message": "Quote saved temporarily", "files": uploaded_files}, status=200)
+#         return Response({"message": "Quote saved temporarily", "files": uploaded_files}, status=200)
 
 
-class FinalizeQuoteView(APIView):
-    permission_classes = [IsAuthenticated]
+# class FinalizeQuoteView(APIView):
+#     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        quote_data = request.session.get('temp_quote_data')
+#     def post(self, request):
+#         quote_data = request.session.get('temp_quote_data')
 
-        if not quote_data:
-            return Response({"message": "No quote data found in session."}, status=400)
+#         if not quote_data:
+#             return Response({"message": "No quote data found in session."}, status=400)
 
-        quote_data['user'] = request.user.id
-        quote_data['product_name'] = quote_data.pop('product_name', '')
-        quote_data['product_type'] = quote_data.pop('product_type', '')
+#         quote_data['user'] = request.user.id
+#         quote_data['product_name'] = quote_data.pop('product_name', '')
+#         quote_data['product_type'] = quote_data.pop('product_type', '')
 
-        shipping_fields = {
-            'port_name': quote_data.pop('portName', ''),
-            'destination_country': quote_data.pop('destinationCountry', ''),
-            'shipment_terms': quote_data.pop('shipmentTerms', ''),
-            'payment_terms': quote_data.pop('paymentTerms', ''),
-            'shipment_method': quote_data.pop('shipmentMethod', ''),
-            'shipment_destination': quote_data.pop('shipmentDestination', ''),
-            'door_address': quote_data.pop('doorAddress', ''),
-            'shipment_details': quote_data.pop('shipmentDetails', ''),
-        }
+#         shipping_fields = {
+#             'port_name': quote_data.pop('portName', ''),
+#             'destination_country': quote_data.pop('destinationCountry', ''),
+#             'shipment_terms': quote_data.pop('shipmentTerms', ''),
+#             'payment_terms': quote_data.pop('paymentTerms', ''),
+#             'shipment_method': quote_data.pop('shipmentMethod', ''),
+#             'shipment_destination': quote_data.pop('shipmentDestination', ''),
+#             'door_address': quote_data.pop('doorAddress', ''),
+#             'shipment_details': quote_data.pop('shipmentDetails', ''),
+#         }
 
-        quote_serializer = QuoteSerializer(data=quote_data)
-        if quote_serializer.is_valid():
-            quote = quote_serializer.save()
+#         quote_serializer = QuoteSerializer(data=quote_data)
+#         if quote_serializer.is_valid():
+#             quote = quote_serializer.save()
 
-            if any(shipping_fields.values()):
-                ShippingDetails.objects.create(quote=quote, **shipping_fields)
+#             if any(shipping_fields.values()):
+#                 ShippingDetails.objects.create(quote=quote, **shipping_fields)
 
-            # Save timeline event
-            QuoteTimeline.objects.create(
-                quote=quote,
-                action="Quote submitted",
-                actor=request.user
-            )
+#             # Save timeline event
+#             QuoteTimeline.objects.create(
+#                 quote=quote,
+#                 action="Quote submitted",
+#                 actor=request.user
+#             )
 
-            for file_info in quote_data.get('attachments', []):
-                temp_path = file_info['file_path']
-                if default_storage.exists(temp_path):
-                    with default_storage.open(temp_path, 'rb') as f:
-                        content = ContentFile(f.read())
-                        file_name = temp_path.split('/')[-1]
+#             for file_info in quote_data.get('attachments', []):
+#                 temp_path = file_info['file_path']
+#                 if default_storage.exists(temp_path):
+#                     with default_storage.open(temp_path, 'rb') as f:
+#                         content = ContentFile(f.read())
+#                         file_name = temp_path.split('/')[-1]
 
-                        saved_file = default_storage.save(f"quote_attachments/{file_name}", content)
-                        QuoteAttachment.objects.create(
-                            quote=quote,
-                            file=saved_file,
-                            file_name=file_info['file_name'],
-                        )
-                    default_storage.delete(temp_path)
+#                         saved_file = default_storage.save(f"quote_attachments/{file_name}", content)
+#                         QuoteAttachment.objects.create(
+#                             quote=quote,
+#                             file=saved_file,
+#                             file_name=file_info['file_name'],
+#                         )
+#                     default_storage.delete(temp_path)
 
-            conversation = Conversation.objects.create(
-                type='quote',
-                quote=quote,
-                name=f"Quote Chat: {quote.quote_number}"
-            )
-            ConversationParticipant.objects.create(
-                conversation=conversation,
-                user=request.user,
-                role="Customer"
-            )
+#             conversation = Conversation.objects.create(
+#                 type='quote',
+#                 quote=quote,
+#                 name=f"Quote Chat: {quote.quote_number}"
+#             )
+#             ConversationParticipant.objects.create(
+#                 conversation=conversation,
+#                 user=request.user,
+#                 role="Customer"
+#             )
 
-            admin_user = User.objects.filter(is_staff=True).first()
-            if admin_user and admin_user != request.user:
-                ConversationParticipant.objects.get_or_create(
-                    conversation=conversation,
-                    user=admin_user,
-                    role="Sourcing Specialist"
-                )
+#             admin_user = User.objects.filter(is_staff=True).first()
+#             if admin_user and admin_user != request.user:
+#                 ConversationParticipant.objects.get_or_create(
+#                     conversation=conversation,
+#                     user=admin_user,
+#                     role="Sourcing Specialist"
+#                 )
 
-            del request.session['temp_quote_data']
-            return Response(QuoteSerializer(quote).data, status=201)
+#             del request.session['temp_quote_data']
+#             return Response(QuoteSerializer(quote).data, status=201)
 
-        return Response(quote_serializer.errors, status=400)
+#         return Response(quote_serializer.errors, status=400)
 
 
 
