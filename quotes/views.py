@@ -1,3 +1,131 @@
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework import status, permissions
+# from .serializers import QuoteSerializer
+# from django.contrib.auth import get_user_model
+# from rest_framework.permissions import AllowAny
+# from .models import Quote, QuoteAttachment, ShippingDetails
+
+
+
+# User = get_user_model()
+
+# class TempQuoteView(APIView):
+#     """
+#     Save quote temporarily in session if user is not authenticated
+#     """
+#     permission_classes = [AllowAny] 
+#     def post(self, request):
+#         quote_data = request.data
+#         request.session['temp_quote_data'] = quote_data
+#         return Response({"message": "Quote saved temporarily."}, status=200)
+
+
+# User = get_user_model()
+
+# from messaging.models import Conversation, ConversationParticipant
+
+# class FinalizeQuoteView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def post(self, request):
+#         quote_data = request.session.get('temp_quote_data')
+
+#         if not quote_data:
+#             return Response({"message": "No quote data found in session."}, status=400)
+
+#         quote_data['user'] = request.user.id
+#         quote_data['product_name'] = quote_data.pop('productName', '')
+#         quote_data['product_type'] = quote_data.pop('productType', '')
+
+#         shipping_fields = {
+#             'port_name': quote_data.pop('portName', ''),
+#             'destination_country': quote_data.pop('destinationCountry', ''),
+#             'shipment_terms': quote_data.pop('shipmentTerms', ''),
+#             'payment_terms': quote_data.pop('paymentTerms', ''),
+#             'shipment_method': quote_data.pop('shipmentMethod', ''),
+#             'shipment_destination': quote_data.pop('shipmentDestination', ''),
+#             'door_address': quote_data.pop('doorAddress', ''),
+#             'shipment_details': quote_data.pop('shipmentDetails', ''),
+#         }
+
+#         quote_serializer = QuoteSerializer(data=quote_data)
+#         if quote_serializer.is_valid():
+#             quote = quote_serializer.save()
+
+#             # ✅ Save shipping details
+#             if any(value for value in shipping_fields.values()):
+#                 ShippingDetails.objects.create(quote=quote, **shipping_fields)
+
+#             # ✅ Create conversation + participant
+#             conversation = Conversation.objects.create(
+#                 type='quote',
+#                 quote=quote,
+#                 name=f"Quote Chat: {quote.quote_number}"
+#             )
+#             ConversationParticipant.objects.create(
+#                 conversation=conversation,
+#                 user=request.user,
+#                 role="Customer"
+#             )
+
+#             del request.session['temp_quote_data']
+#             return Response(QuoteSerializer(quote).data, status=201)
+
+#         return Response(quote_serializer.errors, status=400)
+
+
+
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+# from rest_framework.views import APIView
+# from .models import Quote
+# from .serializers import QuoteSerializer
+
+# # For Quote View for authenticated users
+# class MyQuotesView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         quotes = Quote.objects.filter(user=request.user).order_by('-created_at')
+#         serializer = QuoteSerializer(quotes, many=True)
+#         return Response(serializer.data)
+
+
+# # For Quote detail view for authenticated users
+# from rest_framework.generics import RetrieveAPIView
+# from .models import Quote
+# from .serializers import QuoteDetailSerializer
+# from rest_framework.permissions import IsAuthenticated
+
+# class QuoteDetailView(RetrieveAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = QuoteDetailSerializer
+#     queryset = Quote.objects.all()
+
+#     def get_queryset(self):
+#         # Only allow users to access their own quotes
+#         return self.queryset.filter(user=self.request.user)
+
+
+
+# from rest_framework.generics import RetrieveAPIView
+# from rest_framework.permissions import IsAuthenticated
+# from .models import QuoteResponse
+# from .serializers import QuoteResponseSerializer
+
+# class QuoteResponseDetailView(RetrieveAPIView):
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = QuoteResponseSerializer
+
+#     def get_queryset(self):
+#         # Only show responses to quotes owned by the current user
+#         return QuoteResponse.objects.filter(quote__user=self.request.user)
+
+
+# this is working ======================================================================
+
+
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny
 from rest_framework.generics import RetrieveAPIView
@@ -31,10 +159,7 @@ from messaging.models import Conversation, Message
 User = get_user_model()
 from django.views.decorators.csrf import csrf_exempt
 
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-
-@method_decorator(csrf_exempt, name='dispatch')
+@csrf_exempt
 class TempQuoteView(APIView):
     """
     Save quote temporarily in session if user is not authenticated
