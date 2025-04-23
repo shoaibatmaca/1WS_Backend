@@ -245,7 +245,7 @@ class QuoteAttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuoteAttachment
-        fields = ['id', 'name', 'file', 'file_size', 'created_at']
+        fields = ['id', 'name', 'file', 'created_at']
 
     def get_name(self, obj):
         return obj.file_name

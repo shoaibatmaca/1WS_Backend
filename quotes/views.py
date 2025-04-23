@@ -1,131 +1,3 @@
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status, permissions
-# from .serializers import QuoteSerializer
-# from django.contrib.auth import get_user_model
-# from rest_framework.permissions import AllowAny
-# from .models import Quote, QuoteAttachment, ShippingDetails
-
-
-
-# User = get_user_model()
-
-# class TempQuoteView(APIView):
-#     """
-#     Save quote temporarily in session if user is not authenticated
-#     """
-#     permission_classes = [AllowAny] 
-#     def post(self, request):
-#         quote_data = request.data
-#         request.session['temp_quote_data'] = quote_data
-#         return Response({"message": "Quote saved temporarily."}, status=200)
-
-
-# User = get_user_model()
-
-# from messaging.models import Conversation, ConversationParticipant
-
-# class FinalizeQuoteView(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def post(self, request):
-#         quote_data = request.session.get('temp_quote_data')
-
-#         if not quote_data:
-#             return Response({"message": "No quote data found in session."}, status=400)
-
-#         quote_data['user'] = request.user.id
-#         quote_data['product_name'] = quote_data.pop('productName', '')
-#         quote_data['product_type'] = quote_data.pop('productType', '')
-
-#         shipping_fields = {
-#             'port_name': quote_data.pop('portName', ''),
-#             'destination_country': quote_data.pop('destinationCountry', ''),
-#             'shipment_terms': quote_data.pop('shipmentTerms', ''),
-#             'payment_terms': quote_data.pop('paymentTerms', ''),
-#             'shipment_method': quote_data.pop('shipmentMethod', ''),
-#             'shipment_destination': quote_data.pop('shipmentDestination', ''),
-#             'door_address': quote_data.pop('doorAddress', ''),
-#             'shipment_details': quote_data.pop('shipmentDetails', ''),
-#         }
-
-#         quote_serializer = QuoteSerializer(data=quote_data)
-#         if quote_serializer.is_valid():
-#             quote = quote_serializer.save()
-
-#             # ✅ Save shipping details
-#             if any(value for value in shipping_fields.values()):
-#                 ShippingDetails.objects.create(quote=quote, **shipping_fields)
-
-#             # ✅ Create conversation + participant
-#             conversation = Conversation.objects.create(
-#                 type='quote',
-#                 quote=quote,
-#                 name=f"Quote Chat: {quote.quote_number}"
-#             )
-#             ConversationParticipant.objects.create(
-#                 conversation=conversation,
-#                 user=request.user,
-#                 role="Customer"
-#             )
-
-#             del request.session['temp_quote_data']
-#             return Response(QuoteSerializer(quote).data, status=201)
-
-#         return Response(quote_serializer.errors, status=400)
-
-
-
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework.response import Response
-# from rest_framework.views import APIView
-# from .models import Quote
-# from .serializers import QuoteSerializer
-
-# # For Quote View for authenticated users
-# class MyQuotesView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         quotes = Quote.objects.filter(user=request.user).order_by('-created_at')
-#         serializer = QuoteSerializer(quotes, many=True)
-#         return Response(serializer.data)
-
-
-# # For Quote detail view for authenticated users
-# from rest_framework.generics import RetrieveAPIView
-# from .models import Quote
-# from .serializers import QuoteDetailSerializer
-# from rest_framework.permissions import IsAuthenticated
-
-# class QuoteDetailView(RetrieveAPIView):
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = QuoteDetailSerializer
-#     queryset = Quote.objects.all()
-
-#     def get_queryset(self):
-#         # Only allow users to access their own quotes
-#         return self.queryset.filter(user=self.request.user)
-
-
-
-# from rest_framework.generics import RetrieveAPIView
-# from rest_framework.permissions import IsAuthenticated
-# from .models import QuoteResponse
-# from .serializers import QuoteResponseSerializer
-
-# class QuoteResponseDetailView(RetrieveAPIView):
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = QuoteResponseSerializer
-
-#     def get_queryset(self):
-#         # Only show responses to quotes owned by the current user
-#         return QuoteResponse.objects.filter(quote__user=self.request.user)
-
-
-# this is working ======================================================================
-
-
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny
 from rest_framework.generics import RetrieveAPIView
@@ -162,23 +34,149 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-@method_decorator(csrf_exempt, name='dispatch')
-class TempQuoteView(APIView):
-    """
-    Save quote temporarily in session if user is not authenticated
-    """
-    permission_classes = [AllowAny] 
+# @method_decorator(csrf_exempt, name='dispatch')
+# class TempQuoteView(APIView):
+#     """
+#     Save quote temporarily in session if user is not authenticated
+#     """
+#     permission_classes = [AllowAny] 
 
-    def post(self, request):
-        quote_data = request.data
-        request.session['temp_quote_data'] = quote_data
-        return Response({"message": "Quote saved temporarily."}, status=200)
+#     def post(self, request):
+#         quote_data = request.data
+#         request.session['temp_quote_data'] = quote_data
+#         return Response({"message": "Quote saved temporarily."}, status=200)
+
+
+
+
+# class FinalizeQuoteView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def post(self, request):
+#         quote_data = request.session.get('temp_quote_data')
+
+#         if not quote_data:
+#             return Response({"message": "No quote data found in session."}, status=400)
+
+#         quote_data['user'] = request.user.id
+#         quote_data['product_name'] = quote_data.pop('productName', '')
+#         quote_data['product_type'] = quote_data.pop('productType', '')
+
+#         shipping_fields = {
+#             'port_name': quote_data.pop('portName', ''),
+#             'destination_country': quote_data.pop('destinationCountry', ''),
+#             'shipment_terms': quote_data.pop('shipmentTerms', ''),
+#             'payment_terms': quote_data.pop('paymentTerms', ''),
+#             'shipment_method': quote_data.pop('shipmentMethod', ''),
+#             'shipment_destination': quote_data.pop('shipmentDestination', ''),
+#             'door_address': quote_data.pop('doorAddress', ''),
+#             'shipment_details': quote_data.pop('shipmentDetails', ''),
+#         }
+
+#         quote_serializer = QuoteSerializer(data=quote_data)
+#         if quote_serializer.is_valid():
+#             quote = quote_serializer.save()
+
+#             # ✅ Save shipping details
+#             if any(value for value in shipping_fields.values()):
+#                 ShippingDetails.objects.create(quote=quote, **shipping_fields)
+
+#             # ✅ Create conversation + add requesting user as "Customer"
+#             conversation = Conversation.objects.create(
+#                 type='quote',
+#                 quote=quote,
+#                 name=f"Quote Chat: {quote.quote_number}"
+#             )
+#             ConversationParticipant.objects.create(
+#                 conversation=conversation,
+#                 user=request.user,
+#                 role="Customer"
+#             )
+
+#             # ✅ Optionally auto-add sourcing specialist/admin
+#             admin_user = User.objects.filter(is_staff=True).first()
+#             if admin_user and admin_user != request.user:
+#                 ConversationParticipant.objects.get_or_create(
+#                     conversation=conversation,
+#                     user=admin_user,
+#                     role="Sourcing Specialist"
+#                 )
+
+#             del request.session['temp_quote_data']
+#             return Response(QuoteSerializer(quote).data, status=201)
+
+#         return Response(quote_serializer.errors, status=400)
+# this is for the temporary quote view with images data
+
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Quote, QuoteAttachment, ShippingDetails, QuoteTimeline
+from .serializers import QuoteSerializer
+from messaging.models import Conversation, ConversationParticipant
+from django.contrib.auth import get_user_model
 
 from django.views.decorators.csrf import csrf_exempt
 
+User = get_user_model()
+
+
+
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class TempQuoteView(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        temp_data = request.data.dict()
+        files = request.FILES.getlist('attachments')
+
+        uploaded_files = []
+
+        for file in files:
+            saved_path = default_storage.save(f"temp_uploads/{file.name}", file)
+            uploaded_files.append({
+                "file_path": saved_path,
+                "file_name": file.name,
+            })
+
+        # Save quote data + files in session
+        request.session['temp_quote_data'] = {
+            # Product Info
+    "product_name": temp_data.get("product_name", ""),
+    "product_type": temp_data.get("product_type", ""),
+    "quantity": temp_data.get("quantity", ""),
+    "region": temp_data.get("region", ""),
+    "color": temp_data.get("color", ""),
+    "target_price": temp_data.get("target_price", ""),
+    "quality": temp_data.get("quality", ""),
+    "specifications": temp_data.get("specifications", ""),
+
+    # Shipping Info (NEW)
+    "portName": temp_data.get("portName", ""),
+    "destinationCountry": temp_data.get("destinationCountry", ""),
+    "shipmentTerms": temp_data.get("shipmentTerms", ""),
+    "paymentTerms": temp_data.get("paymentTerms", ""),
+    "shipmentMethod": temp_data.get("shipmentMethod", ""),
+    "shipmentDestination": temp_data.get("shipmentDestination", ""),
+    "doorAddress": temp_data.get("doorAddress", ""),
+    "shipmentDetails": temp_data.get("shipmentDetails", ""),
+
+    # Attachments
+    "attachments": uploaded_files
+        }
+
+        return Response({"message": "Quote saved temporarily", "files": uploaded_files}, status=200)
+
 
 class FinalizeQuoteView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         quote_data = request.session.get('temp_quote_data')
@@ -187,8 +185,8 @@ class FinalizeQuoteView(APIView):
             return Response({"message": "No quote data found in session."}, status=400)
 
         quote_data['user'] = request.user.id
-        quote_data['product_name'] = quote_data.pop('productName', '')
-        quote_data['product_type'] = quote_data.pop('productType', '')
+        quote_data['product_name'] = quote_data.pop('product_name', '')
+        quote_data['product_type'] = quote_data.pop('product_type', '')
 
         shipping_fields = {
             'port_name': quote_data.pop('portName', ''),
@@ -205,11 +203,31 @@ class FinalizeQuoteView(APIView):
         if quote_serializer.is_valid():
             quote = quote_serializer.save()
 
-            # ✅ Save shipping details
-            if any(value for value in shipping_fields.values()):
+            if any(shipping_fields.values()):
                 ShippingDetails.objects.create(quote=quote, **shipping_fields)
 
-            # ✅ Create conversation + add requesting user as "Customer"
+            # Save timeline event
+            QuoteTimeline.objects.create(
+                quote=quote,
+                action="Quote submitted",
+                actor=request.user
+            )
+
+            for file_info in quote_data.get('attachments', []):
+                temp_path = file_info['file_path']
+                if default_storage.exists(temp_path):
+                    with default_storage.open(temp_path, 'rb') as f:
+                        content = ContentFile(f.read())
+                        file_name = temp_path.split('/')[-1]
+
+                        saved_file = default_storage.save(f"quote_attachments/{file_name}", content)
+                        QuoteAttachment.objects.create(
+                            quote=quote,
+                            file=saved_file,
+                            file_name=file_info['file_name'],
+                        )
+                    default_storage.delete(temp_path)
+
             conversation = Conversation.objects.create(
                 type='quote',
                 quote=quote,
@@ -221,7 +239,6 @@ class FinalizeQuoteView(APIView):
                 role="Customer"
             )
 
-            # ✅ Optionally auto-add sourcing specialist/admin
             admin_user = User.objects.filter(is_staff=True).first()
             if admin_user and admin_user != request.user:
                 ConversationParticipant.objects.get_or_create(
@@ -234,6 +251,8 @@ class FinalizeQuoteView(APIView):
             return Response(QuoteSerializer(quote).data, status=201)
 
         return Response(quote_serializer.errors, status=400)
+
+
 
 
 from rest_framework.views import APIView
@@ -266,7 +285,7 @@ class DirectQuoteCreateView(APIView):
         data = request.data.copy()
         data['user'] = request.user.id
 
-        # ✅ FORCE STRINGS from FormData
+        #  FORCE STRINGS from FormData
         data['product_name'] = str(data.pop('productName', '') or '')
         data['product_type'] = str(data.pop('productType', '') or '')
 
@@ -425,342 +444,3 @@ class UnlockSupplierView(APIView):
             return Response({"error": str(e)}, status=500)
 
 
-
-
-
-# class UnlockSupplierView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request, quote_id):
-#         try:
-#             quote = Quote.objects.get(id=quote_id)
-
-#             # Get or create the quote-based conversation
-#             convo, _ = Conversation.objects.get_or_create(
-#                 quote=quote, type='quote',
-#                 defaults={'name': f"Quote: {quote.quote_number}"}
-#             )
-
-#             # Ensure current user is participant
-#             if not ConversationParticipant.objects.filter(conversation=convo, user=request.user).exists():
-#                 ConversationParticipant.objects.create(
-#                     conversation=convo,
-#                     user=request.user,
-#                     role='Customer'
-#                 )
-
-#             # Ensure admin is participant
-#             admin = User.objects.filter(is_staff=True).first()
-#             if admin and not ConversationParticipant.objects.filter(conversation=convo, user=admin).exists():
-#                 ConversationParticipant.objects.create(
-#                     conversation=convo,
-#                     user=admin,
-#                     role='Admin'
-#                 )
-
-#             # Post unlock request message
-#             Message.objects.create(
-#                 conversation=convo,
-#                 sender=request.user,
-#                 content="User requested to unlock supplier."
-#             )
-
-#             return Response({"detail": "Unlock request sent to admin."}, status=200)
-
-#         except Quote.DoesNotExist:
-#             return Response({"error": "Quote not found."}, status=404)
-
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=500)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status, permissions
-# from django.contrib.auth import get_user_model
-# from rest_framework.permissions import AllowAny
-# from rest_framework.generics import RetrieveAPIView
-
-# from .serializers import QuoteSerializer, QuoteDetailSerializer, QuoteResponseSerializer
-# from .models import Quote, QuoteAttachment, ShippingDetails, QuoteResponse, QuoteTimeline  # ⬅️ Added QuoteTimeline
-# from messaging.models import Conversation, ConversationParticipant
-
-# User = get_user_model()
-
-# class TempQuoteView(APIView):
-#     """
-#     Save quote temporarily in session if user is not authenticated
-#     """
-#     permission_classes = [AllowAny]
-
-#     def post(self, request):
-#         quote_data = request.data
-#         request.session['temp_quote_data'] = quote_data
-#         return Response({"message": "Quote saved temporarily."}, status=200)
-
-
-# class FinalizeQuoteView(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def post(self, request):
-#         quote_data = request.session.get('temp_quote_data')
-
-#         if not quote_data:
-#             return Response({"message": "No quote data found in session."}, status=400)
-
-#         quote_data['user'] = request.user.id
-#         quote_data['product_name'] = quote_data.pop('productName', '')
-#         quote_data['product_type'] = quote_data.pop('productType', '')
-
-#         shipping_fields = {
-#             'port_name': quote_data.pop('portName', ''),
-#             'destination_country': quote_data.pop('destinationCountry', ''),
-#             'shipment_terms': quote_data.pop('shipmentTerms', ''),
-#             'payment_terms': quote_data.pop('paymentTerms', ''),
-#             'shipment_method': quote_data.pop('shipmentMethod', ''),
-#             'shipment_destination': quote_data.pop('shipmentDestination', ''),
-#             'door_address': quote_data.pop('doorAddress', ''),
-#             'shipment_details': quote_data.pop('shipmentDetails', ''),
-#         }
-
-#         quote_serializer = QuoteSerializer(data=quote_data)
-#         if quote_serializer.is_valid():
-#             quote = quote_serializer.save()
-
-#             # ✅ Timeline: Quote submitted
-#             QuoteTimeline.objects.create(
-#                 quote=quote,
-#                 title="Quote Submitted",
-#                 description="The customer submitted a new quote."
-#             )
-
-#             # ✅ Save shipping details
-#             if any(value for value in shipping_fields.values()):
-#                 ShippingDetails.objects.create(quote=quote, **shipping_fields)
-#                 QuoteTimeline.objects.create(
-#                     quote=quote,
-#                     title="Shipping Details Added",
-#                     description="Shipping details were provided by the customer."
-#                 )
-
-#             # ✅ Create conversation + add requesting user as "Customer"
-#             conversation = Conversation.objects.create(
-#                 type='quote',
-#                 quote=quote,
-#                 name=f"Quote Chat: {quote.quote_number}"
-#             )
-#             ConversationParticipant.objects.create(
-#                 conversation=conversation,
-#                 user=request.user,
-#                 role="Customer"
-#             )
-
-#             QuoteTimeline.objects.create(
-#                 quote=quote,
-#                 title="Conversation Created",
-#                 description="A chat thread has been initiated for this quote."
-#             )
-
-#             # ✅ Optionally auto-add sourcing specialist/admin
-#             admin_user = User.objects.filter(is_staff=True).first()
-#             if admin_user and admin_user != request.user:
-#                 ConversationParticipant.objects.get_or_create(
-#                     conversation=conversation,
-#                     user=admin_user,
-#                     role="Sourcing Specialist"
-#                 )
-#                 QuoteTimeline.objects.create(
-#                     quote=quote,
-#                     title="Sourcing Specialist Assigned",
-#                     description=f"{admin_user.get_full_name()} was added as a Sourcing Specialist."
-#                 )
-
-#             del request.session['temp_quote_data']
-#             return Response(QuoteSerializer(quote).data, status=201)
-
-#         return Response(quote_serializer.errors, status=400)
-
-
-# class MyQuotesView(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def get(self, request):
-#         quotes = Quote.objects.filter(user=request.user).order_by('-created_at')
-#         serializer = QuoteSerializer(quotes, many=True)
-#         return Response(serializer.data)
-
-
-# class QuoteDetailView(RetrieveAPIView):
-#     permission_classes = [permissions.IsAuthenticated]
-#     serializer_class = QuoteDetailSerializer
-#     queryset = Quote.objects.all()
-
-#     def get_queryset(self):
-#         return self.queryset.filter(user=self.request.user)
-
-
-# class QuoteResponseDetailView(RetrieveAPIView):
-#     permission_classes = [permissions.IsAuthenticated]
-#     serializer_class = QuoteResponseSerializer
-
-#     def get_queryset(self):
-#         return QuoteResponse.objects.filter(quote__user=self.request.user)
-
-# from quotes.models import QuoteTimeline  # import your model
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-
-# class QuoteTimelineView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request, pk):
-#         quote = Quote.objects.filter(id=pk, user=request.user).first()
-#         if not quote:
-#             return Response({"detail": "Quote not found."}, status=404)
-
-#         timeline_events = quote.timeline.order_by("timestamp")
-#         data = [
-#             {
-#                 "event": t.title,
-#                 "description": t.description,
-#                 "date": t.timestamp.strftime('%b %d, %Y'),
-#                 "time": t.timestamp.strftime('%I:%M %p'),
-#                 "user": quote.user.get_full_name() or quote.user.username
-#             }
-#             for t in timeline_events
-#         ]
-#         return Response(data)

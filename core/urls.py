@@ -1,44 +1,19 @@
-# """
-# URL configuration for core project.
+"""
+URL configuration for core project.
 
-# The `urlpatterns` list routes URLs to views. For more information please see:
-#     https://docs.djangoproject.com/en/5.2/topics/http/urls/
-# Examples:
-# Function views
-#     1. Add an import:  from my_app import views
-#     2. Add a URL to urlpatterns:  path('', views.home, name='home')
-# Class-based views
-#     1. Add an import:  from other_app.views import Home
-#     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-# Including another URLconf
-#     1. Import the include() function: from django.urls import include, path
-#     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-# """
-# from django.contrib import admin
-# from django.urls import path, include
-# from quotes.views import (TempQuoteView, FinalizeQuoteView, MyQuotesView, QuoteDetailView,
-#                 QuoteResponseDetailView)
-
-# urlpatterns = [
-#     path('admin/', admin.site.urls),
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls')) """
     
-#     # For Quotes:
-#     path('quote/temp-save/', TempQuoteView.as_view(), name='temp-quote'),
-#     path('quote/finalize/', FinalizeQuoteView.as_view(), name='finalize-quote'),
-#     path("quotes/my/", MyQuotesView.as_view(), name="my-quotes"),
-#     path("quotes/<uuid:pk>/", QuoteDetailView.as_view(), name="quote-detail"),
-#     path("quote-response/<uuid:pk>/", QuoteResponseDetailView.as_view(), name="quote-response-detail"),
-
-    
-    
-#     # For Accounts:
-#     path('auth/', include('djoser.urls')),  
-#     path('auth/', include('djoser.urls.jwt')),
-    
-    
-    
-# ]
-
 
 from django.contrib import admin
 from django.urls import path, include
