@@ -155,11 +155,14 @@ from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from messaging.models import Conversation, Message
+from django.utils.decorators import method_decorator
 
 User = get_user_model()
 from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class TempQuoteView(APIView):
     """
     Save quote temporarily in session if user is not authenticated
