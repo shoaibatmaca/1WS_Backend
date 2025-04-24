@@ -121,11 +121,17 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 
 # Session cookie settings (to support session storage with credentials: "include")
-SESSION_COOKIE_SECURE = False  # Use True in production with HTTPS
-SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_SECURE = False
+# SESSION_COOKIE_SECURE = False  # Use True in production with HTTPS
+# SESSION_COOKIE_SAMESITE = "Lax"
+# SESSION_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_SAMESITE = "Lax"
+# CSRF_COOKIE_SECURE = False
+
+SESSION_COOKIE_SAMESITE = "None"     #  Required for cross-site
+SESSION_COOKIE_SECURE = True         #  Required when using SameSite=None
+
+CSRF_COOKIE_SAMESITE = "None"        #  Also needed if you're doing CSRF with cookies
+CSRF_COOKIE_SECURE = True            # Required when using SameSite=None
 
 # REST Framework settings 
 REST_FRAMEWORK = { 
